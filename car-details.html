@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Car Details — Smart Car Advisor</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    /* ── RESET & BASE ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:        #0a0a0a;
+      --bg-card:   #1a1a1a;
+      --bg-card2:  rgba(255,255,255,0.04);
+      --border:    rgba(255,255,255,0.08);
+      --blue:      #00d4ff;
+      --blue-glow: rgba(0,212,255,0.35);
+      --maroon:    #9b1a3e;
+      --white:     #f0f0f8;
+      --silver:    #c8c8d8;
+      --muted:     #7a7a9a;
+      --green:     #22c55e;
+      --orange:    #f59e0b;
+      --purple:    #8b5cf6;
+      --grad:      linear-gradient(135deg, #00d4ff 0%, #9b1a3e 100%);
+      --radius:    18px;
+      --transition:0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 3px; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+    .gradient-text {
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .nav-logo i { color: var(--maroon); }
+    .logo-accent { color: var(--blue); }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--silver);
+      padding: 0.5rem 1.2rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      text-decoration: none;
+    }
+    .btn-back:hover {
+      background: rgba(0,212,255,0.1);
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 3rem 0 0;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,212,255,0.08) 0%, transparent 70%),
+                  radial-gradient(ellipse 60% 40% at 80% 50%, rgba(155,26,62,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+      padding-bottom: 3rem;
+    }
+
+    /* Car image */
+    .hero-img-wrap {
+      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+      aspect-ratio: 16/9;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      box-shadow: 0 0 60px rgba(0,212,255,0.1);
+    }
+    .hero-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .hero-img-wrap:hover img { transform: scale(1.04); }
+    .hero-img-glow {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10,10,10,0.5) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Hero info */
+    .hero-info { display: flex; flex-direction: column; gap: 1.2rem; }
+
+    .badge-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .badge {
+      padding: 0.3rem 0.9rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border: 1px solid transparent;
+    }
+    .badge-brand   { background: rgba(0,212,255,0.12);  border-color: rgba(0,212,255,0.3);  color: var(--blue); }
+    .badge-type    { background: rgba(139,92,246,0.12); border-color: rgba(139,92,246,0.3); color: var(--purple); }
+    .badge-fuel    { background: rgba(34,197,94,0.12);  border-color: rgba(34,197,94,0.3);  color: var(--green); }
+    .badge-ev      { background: rgba(34,197,94,0.2);   border-color: var(--green);          color: var(--green); }
+    .badge-luxury  { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.4); color: var(--orange); }
+
+    .hero-name {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .price-block { display: flex; flex-direction: column; gap: 0.2rem; }
+    .price-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .price-value { font-size: 2rem; font-weight: 800; color: var(--blue); }
+    .emi-value   { font-size: 0.9rem; color: var(--muted); }
+    .emi-value span { color: var(--silver); font-weight: 600; }
+
+    .hero-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--grad);
+      color: #fff;
+      border: none;
+      padding: 0.8rem 1.8rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+      box-shadow: 0 0 20px var(--blue-glow);
+      text-decoration: none;
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 35px var(--blue-glow); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--blue);
+      border: 1px solid var(--blue);
+      padding: 0.8rem 1.8rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all var(--transition);
+      text-decoration: none;
+    }
+    .btn-ghost:hover { background: rgba(0,212,255,0.1); transform: translateY(-3px); }
+
+    /* ── DIVIDER ── */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      margin: 2.5rem 0;
+    }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .section-title i { color: var(--blue); font-size: 1.1rem; }
+
+    /* ── SPECS GRID ── */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .spec-card {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.2rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .spec-card:hover {
+      border-color: rgba(0,212,255,0.3);
+      box-shadow: 0 0 20px rgba(0,212,255,0.08);
+    }
+    .spec-icon { font-size: 1.2rem; color: var(--blue); }
+    .spec-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
+    .spec-value { font-size: 1rem; font-weight: 700; color: var(--white); }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 1.2rem;
+      font-size: 0.92rem;
+      color: var(--silver);
+      transition: all var(--transition);
+    }
+    .feature-item:hover {
+      border-color: rgba(0,212,255,0.3);
+      color: var(--white);
+      transform: translateX(4px);
+    }
+    .feature-item i { color: var(--green); font-size: 0.9rem; flex-shrink: 0; }
+
+    /* ── SIMILAR CARS ── */
+    .similar-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .similar-card {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .similar-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 0 30px rgba(0,212,255,0.15);
+      border-color: rgba(0,212,255,0.3);
+    }
+    .similar-card img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+    }
+    .similar-card-info { padding: 0.9rem 1rem; }
+    .similar-card-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .similar-card-price { font-size: 0.82rem; color: var(--blue); font-weight: 600; }
+
+    /* ── NOT FOUND ── */
+    .not-found {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      gap: 1rem;
+      text-align: center;
+    }
+    .not-found i { font-size: 4rem; color: var(--muted); }
+    .not-found h2 { font-size: 1.8rem; color: var(--silver); }
+    .not-found p  { color: var(--muted); }
+
+    /* ── FOOTER ── */
+    .page-footer {
+      margin-top: 4rem;
+      padding: 2rem 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* ── FADE-IN ANIMATION ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeUp 0.6s ease both; }
+    .fade-in-2 { animation: fadeUp 0.6s ease 0.15s both; }
+    .fade-in-3 { animation: fadeUp 0.6s ease 0.3s both; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .hero-inner      { grid-template-columns: 1fr; gap: 1.5rem; }
+      .specs-grid      { grid-template-columns: repeat(2, 1fr); }
+      .features-grid   { grid-template-columns: 1fr; }
+      .similar-grid    { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .specs-grid   { grid-template-columns: 1fr 1fr; }
+      .similar-grid { grid-template-columns: 1fr; }
+      .hero-actions { flex-direction: column; }
+      .btn-primary, .btn-ghost { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a class="nav-logo" href="index.html">
+      <i class="fas fa-car-side"></i>
+      <span>Car<span class="logo-accent">Advisor</span> AI</span>
+    </a>
+    <a class="btn-back" onclick="history.back(); return false;" href="index.html">
+      <i class="fas fa-arrow-left"></i> Back
+    </a>
+  </nav>
+
+  <!-- MAIN CONTENT — rendered by JS -->
+  <main id="main" class="container" style="padding-top:2rem; padding-bottom:2rem;"></main>
+
+  <footer class="page-footer">
+    <p>&copy; 2026 Smart Car Advisor &mdash; EMI figures are indicative. Consult a financial advisor before purchase.</p>
+  </footer>
+
+  <!-- shared car data -->
+  <script src="car-data.js"></script>
+
+  <script>
+    // ── HELPERS ──
+    function fmtPrice(p) {
+      if (p >= 10000000) return '₹' + (p / 10000000).toFixed(2) + ' Cr';
+      if (p >= 100000)   return '₹' + (p / 100000).toFixed(2) + ' L';
+      return '₹' + p.toLocaleString('en-IN');
+    }
+
+    function calcEMI(price) {
+      const principal = price * 0.8;
+      const r = 8.5 / 12 / 100;
+      const n = 36;
+      return Math.round((principal * r * Math.pow(1+r,n)) / (Math.pow(1+r,n)-1));
+    }
+
+    function fmtEMI(p) {
+      return '₹' + calcEMI(p).toLocaleString('en-IN');
+    }
+
+    // ── SPEC ROW HELPER ──
+    function specCard(icon, label, value) {
+      return `
+        <div class="spec-card">
+          <i class="fas ${icon} spec-icon"></i>
+          <span class="spec-label">${label}</span>
+          <span class="spec-value">${value}</span>
+        </div>`;
+    }
+
+    // ── RENDER CAR ──
+    function renderCar(car) {
+      const similar = carData
+        .filter(c => c.id !== car.id && (c.type === car.type || c.brand === car.brand))
+        .slice(0, 3);
+
+      const similarHTML = similar.length ? `
+        <div class="section-divider"></div>
+        <div class="fade-in-3">
+          <h2 class="section-title"><i class="fas fa-th-large"></i> Similar Cars</h2>
+          <div class="similar-grid">
+            ${similar.map(s => `
+              <a class="similar-card" href="car-details.html?id=${s.id}">
+                <img src="${s.image}" alt="${s.name}"
+                     onerror="this.src='https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&q=80'">
+                <div class="similar-card-info">
+                  <div class="similar-card-name">${s.name}</div>
+                  <div class="similar-card-price">${fmtPrice(s.price)}</div>
+                </div>
+              </a>`).join('')}
+          </div>
+        </div>` : '';
+
+      document.title = `${car.name} — Smart Car Advisor`;
+
+      document.getElementById('main').innerHTML = `
+
+        <!-- HERO -->
+        <section class="hero">
+          <div class="hero-bg"></div>
+          <div class="hero-inner">
+
+            <!-- Image -->
+            <div class="hero-img-wrap fade-in">
+              <img src="${car.image}" alt="${car.name}"
+                   onerror="this.src='https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&q=80'">
+              <div class="hero-img-glow"></div>
+            </div>
+
+            <!-- Info -->
+            <div class="hero-info fade-in-2">
+              <div class="badge-row">
+                <span class="badge badge-brand">${car.brand}</span>
+                <span class="badge badge-type">${car.type.toUpperCase()}</span>
+                <span class="badge badge-fuel">${car.fuel}</span>
+                ${car.ev      ? '<span class="badge badge-ev">⚡ Electric</span>' : ''}
+                ${car.luxury  ? '<span class="badge badge-luxury">★ Luxury</span>' : ''}
+              </div>
+
+              <h1 class="hero-name gradient-text">${car.name}</h1>
+
+              <div class="price-block">
+                <span class="price-label">Ex-Showroom Price</span>
+                <span class="price-value">${fmtPrice(car.price)}</span>
+                <span class="emi-value">EMI from <span>${fmtEMI(car.price)}/mo</span> · 80% loan · 8.5% · 3 yrs</span>
+              </div>
+
+              <div class="hero-actions">
+                <a class="btn-primary" href="index.html#calculator">
+                  <i class="fas fa-calculator"></i> Check Affordability
+                </a>
+                <button class="btn-ghost" onclick="addToWishlist('${car.name}')">
+                  <i class="fas fa-heart"></i> Wishlist
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SPECS -->
+        <div class="section-divider"></div>
+        <div class="fade-in-2">
+          <h2 class="section-title"><i class="fas fa-gauge-high"></i> Specifications</h2>
+          <div class="specs-grid">
+            ${specCard('fa-cog',           'Engine',       car.engine)}
+            ${specCard('fa-bolt',          'Power',        car.power)}
+            ${specCard('fa-gas-pump',      car.ev ? 'Range' : 'Mileage', car.mileage)}
+            ${specCard('fa-sliders',       'Transmission', car.transmission)}
+            ${specCard('fa-users',         'Seating',      car.seats + ' Seats')}
+            ${specCard('fa-leaf',          'Fuel Type',    car.fuel)}
+          </div>
+        </div>
+
+        <!-- FEATURES -->
+        <div class="section-divider"></div>
+        <div class="fade-in-2">
+          <h2 class="section-title"><i class="fas fa-star"></i> Key Features</h2>
+          <div class="features-grid">
+            ${car.features.map(f =>
+              `<div class="feature-item"><i class="fas fa-check-circle"></i>${f}</div>`
+            ).join('')}
+          </div>
+        </div>
+
+        ${similarHTML}
+      `;
+    }
+
+    // ── NOT FOUND ──
+    function renderNotFound(idParam) {
+      document.getElementById('main').innerHTML = `
+        <div class="not-found">
+          <i class="fas fa-car-side"></i>
+          <h2>Car Not Found</h2>
+          <p>${idParam ? `No car with id "${idParam}" exists.` : 'No car id provided in the URL.'}</p>
+          <a class="btn-primary" href="index.html" style="margin-top:1rem">
+            <i class="fas fa-arrow-left"></i> Back to All Cars
+          </a>
+        </div>`;
+    }
+
+    // ── WISHLIST ──
+    function addToWishlist(name) {
+      const list = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      if (!list.includes(name)) {
+        list.push(name);
+        localStorage.setItem('wishlist', JSON.stringify(list));
+        alert(`${name} added to your wishlist!`);
+      } else {
+        alert(`${name} is already in your wishlist.`);
+      }
+    }
+
+    // ── INIT ──
+    const params = new URLSearchParams(window.location.search);
+    const idParam = params.get('id');
+    const car = idParam ? carData.find(c => c.id === parseInt(idParam, 10)) : null;
+
+    if (car) {
+      renderCar(car);
+    } else {
+      renderNotFound(idParam);
+    }
+  </script>
+
+</body>
+</html>
